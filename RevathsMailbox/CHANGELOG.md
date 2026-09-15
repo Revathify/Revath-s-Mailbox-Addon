@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0
+
+- Add five selectable Modern palettes: Midnight Cyan, Arcane Violet, Emerald Grove, Crimson Ember, and Royal Blue.
+- Add adjustable Modern-window opacity from 55% to 100%.
+- Add a hamburger font menu with Friz Quadrata, Arial Narrow, Morpheus, and Skurri.
+- Add persistent window scaling from 65% to 110%, with 80–85% recommended for 1080p displays.
+- Apply palette and font changes immediately across the complete mailbox interface.
+
 ## 1.9.1
 
 - Hide the currently logged-in character from the Alts tab.

@@ -24,10 +24,54 @@ local THEMES = {
     },
 }
 
-local styledFrames, styledText, classicInkText = {}, {}, {}
+local MODERN_PALETTES = {
+    midnight = {
+        label = "Midnight Cyan", bg = { 0.035, 0.047, 0.071 }, panel = { 0.065, 0.082, 0.115 },
+        panelAlt = { 0.09, 0.11, 0.15 }, input = { 0.025, 0.034, 0.052 }, button = { 0.09, 0.11, 0.15 },
+        border = { 0.18, 0.23, 0.31 }, accent = { 0.18, 0.72, 0.78 }, accent2 = { 0.40, 0.86, 0.69 },
+    },
+    arcane = {
+        label = "Arcane Violet", bg = { 0.050, 0.035, 0.080 }, panel = { 0.085, 0.060, 0.125 },
+        panelAlt = { 0.115, 0.080, 0.165 }, input = { 0.035, 0.025, 0.060 }, button = { 0.105, 0.070, 0.155 },
+        border = { 0.30, 0.22, 0.42 }, accent = { 0.66, 0.40, 0.94 }, accent2 = { 0.91, 0.55, 0.96 },
+    },
+    emerald = {
+        label = "Emerald Grove", bg = { 0.025, 0.060, 0.050 }, panel = { 0.045, 0.095, 0.075 },
+        panelAlt = { 0.060, 0.125, 0.100 }, input = { 0.018, 0.046, 0.038 }, button = { 0.052, 0.115, 0.090 },
+        border = { 0.16, 0.34, 0.27 }, accent = { 0.18, 0.78, 0.53 }, accent2 = { 0.55, 0.91, 0.48 },
+    },
+    crimson = {
+        label = "Crimson Ember", bg = { 0.070, 0.030, 0.035 }, panel = { 0.115, 0.048, 0.055 },
+        panelAlt = { 0.150, 0.064, 0.070 }, input = { 0.052, 0.022, 0.026 }, button = { 0.135, 0.052, 0.058 },
+        border = { 0.38, 0.18, 0.20 }, accent = { 0.91, 0.28, 0.34 }, accent2 = { 1.00, 0.62, 0.34 },
+    },
+    royal = {
+        label = "Royal Blue", bg = { 0.025, 0.040, 0.080 }, panel = { 0.042, 0.070, 0.125 },
+        panelAlt = { 0.060, 0.095, 0.165 }, input = { 0.018, 0.032, 0.062 }, button = { 0.052, 0.082, 0.145 },
+        border = { 0.16, 0.28, 0.46 }, accent = { 0.25, 0.57, 0.96 }, accent2 = { 0.55, 0.78, 1.00 },
+    },
+}
+
+local FONT_OPTIONS = {
+    friz = { label = "Friz Quadrata", path = STANDARD_TEXT_FONT },
+    arial = { label = "Arial Narrow", path = "Fonts\\ARIALN.TTF" },
+    morpheus = { label = "Morpheus", path = "Fonts\\MORPHEUS.TTF" },
+    skurri = { label = "Skurri", path = "Fonts\\SKURRI.TTF" },
+}
+local PALETTE_ORDER = { "midnight", "arcane", "emerald", "crimson", "royal" }
+local FONT_ORDER = { "friz", "arial", "morpheus", "skurri" }
+
+local styledFrames, styledText, classicInkText, fontObjects = {}, {}, {}, {}
 local savedSkin = type(RevathsMailboxDB) == "table" and type(RevathsMailboxDB.settings) == "table" and RevathsMailboxDB.settings.skin or "modern"
 if not THEMES[savedSkin] then savedSkin = "modern" end
 local activeSkin = "modern"
+
+local function SavedSetting(key, fallback)
+    local settings = ns.db and ns.db.settings
+    if not settings and type(RevathsMailboxDB) == "table" then settings = RevathsMailboxDB.settings end
+    local value = settings and settings[key]
+    return value == nil and fallback or value
+end
 
 local function SetColor(target, source)
     for i = 1, 4 do target[i] = source[i] end
@@ -37,6 +81,22 @@ local function LoadPalette(skin)
     local palette = THEMES[skin] or THEMES.modern
     for role, color in pairs(palette) do
         if C[role] then SetColor(C[role], color) else C[role] = { unpack(color) } end
+    end
+    if skin == "modern" then
+        local paletteKey = SavedSetting("palette", "midnight")
+        local selected = MODERN_PALETTES[paletteKey] or MODERN_PALETTES.midnight
+        for role, color in pairs(selected) do
+            if role ~= "label" and C[role] then
+                C[role][1], C[role][2], C[role][3] = color[1], color[2], color[3]
+            end
+        end
+        C.parchment[1], C.parchment[2], C.parchment[3] = C.panel[1], C.panel[2], C.panel[3]
+        C.letter[1], C.letter[2], C.letter[3] = C.input[1], C.input[2], C.input[3]
+        local opacity = math.max(0.55, math.min(1, tonumber(SavedSetting("modernOpacity", 0.96)) or 0.96))
+        C.bg[4] = opacity
+        C.panel[4], C.parchment[4] = math.min(1, opacity + 0.02), math.min(1, opacity + 0.02)
+        C.panelAlt[4], C.button[4] = math.min(1, opacity + 0.04), math.min(1, opacity + 0.04)
+        C.input[4], C.letter[4] = math.min(1, opacity + 0.04), math.min(1, opacity + 0.04)
     end
     activeSkin = skin
 end
@@ -128,6 +188,7 @@ local function Font(parent, size, color, justify)
     text:SetJustifyH(justify or "LEFT")
     local role = color and ColorRole(color, nil) or "text"
     if role then styledText[text] = role end
+    fontObjects[text] = true
     return text
 end
 
@@ -149,12 +210,29 @@ local function EditBox(parent, multiline)
     local box = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
     ApplyBackdrop(box, C.input, "input")
     box:SetFont(STANDARD_TEXT_FONT, 13, "")
+    fontObjects[box] = true
     box:SetTextColor(unpack(C.text))
     box:SetAutoFocus(false)
     box:SetMultiLine(multiline or false)
     box:SetTextInsets(10, 10, 7, 7)
     box:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     return box
+end
+
+local function ApplySelectedFont()
+    local fontKey = SavedSetting("font", "friz")
+    local option = FONT_OPTIONS[fontKey] or FONT_OPTIONS.friz
+    for object in pairs(fontObjects) do
+        if object and object.GetFont and object.SetFont then
+            local _, size, flags = object:GetFont()
+            local ok, loaded = pcall(object.SetFont, object, option.path, size or 12, flags or "")
+            if not ok or loaded == false then object:SetFont(STANDARD_TEXT_FONT, size or 12, flags or "") end
+        end
+    end
+end
+
+local function HexColor(color)
+    return string.format("ff%02x%02x%02x", math.floor(color[1] * 255 + 0.5), math.floor(color[2] * 255 + 0.5), math.floor(color[3] * 255 + 0.5))
 end
 
 local frame = CreateFrame("Frame", "RevathsMailboxFrame", UIParent, "BackdropTemplate")
@@ -305,12 +383,13 @@ function ns:ApplySkin(skin)
     for object, modernRole in pairs(classicInkText) do
         if object and object.SetTextColor then object:SetTextColor(unpack(skin == "classic" and C.ink or C[modernRole])) end
     end
+    ApplySelectedFont()
     glow:SetColorTexture(C.accent[1], C.accent[2], C.accent[3], skin == "classic" and 0.20 or 0.12)
     if skin == "classic" then
         title:SetText("REVATH'S |cfff5b833MAILBOX|r")
         subtitle:SetText("MAILBOX & CHARACTER COURIER  ·  CLASSIC")
     else
-        title:SetText("REVATH'S |cff2eb8c7MAILBOX|r")
+        title:SetText("REVATH'S |c" .. HexColor(C.accent) .. "MAILBOX|r")
         subtitle:SetText("MAILBOX & CHARACTER COURIER")
     end
     if compose and compose.body then compose.body:SetTextColor(unpack(skin == "classic" and C.ink or C.text)) end
@@ -759,6 +838,7 @@ local bodyBox = CreateFrame("EditBox", nil, bodyContainer)
 bodyBox:SetPoint("TOPLEFT", 10, -8)
 bodyBox:SetPoint("BOTTOMRIGHT", -10, 8)
 bodyBox:SetFont(STANDARD_TEXT_FONT, 13, "")
+fontObjects[bodyBox] = true
 bodyBox:SetTextColor(unpack(C.text))
 bodyBox:SetAutoFocus(false)
 bodyBox:SetMultiLine(true)
@@ -1247,7 +1327,7 @@ frame.pages.Settings = settingsPage
 local appearanceCard = CreateFrame("Frame", nil, settingsPage, "BackdropTemplate")
 appearanceCard:SetPoint("TOPLEFT")
 appearanceCard:SetPoint("TOPRIGHT")
-appearanceCard:SetHeight(245)
+appearanceCard:SetHeight(270)
 ApplyBackdrop(appearanceCard)
 
 local settingsTitle = Font(appearanceCard, 18, C.text)
@@ -1255,21 +1335,21 @@ settingsTitle:SetPoint("TOPLEFT", 22, -20)
 settingsTitle:SetText("Appearance")
 local settingsHint = Font(appearanceCard, 12, C.muted)
 settingsHint:SetPoint("TOPLEFT", settingsTitle, "BOTTOMLEFT", 0, -9)
-settingsHint:SetText("Choose the visual style used by every Revath's Mailbox screen.")
+settingsHint:SetText("Choose a skin, palette, font, transparency, and comfortable window size.")
 
-local modernButton = Button(appearanceCard, "Modern", 190, 38)
-modernButton:SetPoint("TOPLEFT", 22, -86)
+local modernButton = Button(appearanceCard, "Modern", 170, 36)
+modernButton:SetPoint("TOPLEFT", 22, -75)
 local modernDescription = Font(appearanceCard, 11, C.muted)
 modernDescription:SetPoint("TOPLEFT", modernButton, "BOTTOMLEFT", 2, -9)
-modernDescription:SetWidth(300)
-modernDescription:SetText("Dark slate panels with cyan highlights.")
+modernDescription:SetWidth(166)
+modernDescription:SetText("Custom palettes and transparency.")
 
-local classicButton = Button(appearanceCard, "Classic", 190, 38)
-classicButton:SetPoint("TOPLEFT", 332, -86)
+local classicButton = Button(appearanceCard, "Classic", 170, 36)
+classicButton:SetPoint("TOPLEFT", 210, -75)
 local classicDescription = Font(appearanceCard, 11, C.muted)
 classicDescription:SetPoint("TOPLEFT", classicButton, "BOTTOMLEFT", 2, -9)
-classicDescription:SetWidth(330)
-classicDescription:SetText("Ornate metal frames, red controls, and parchment mail pages.")
+classicDescription:SetWidth(170)
+classicDescription:SetText("Old-WoW frames and parchment.")
 
 modernButton:SetScript("OnClick", function()
     if ns:ApplySkinSafe("modern") then ns:SetStatus("Modern skin selected.")
@@ -1278,6 +1358,114 @@ end)
 classicButton:SetScript("OnClick", function()
     if ns:ApplySkinSafe("classic") then ns:SetStatus("Classic skin selected.")
     else ns:SetStatus("Classic could not load and was reset to Modern.", true) end
+end)
+
+local paletteLabel = Font(appearanceCard, 12, C.muted)
+paletteLabel:SetPoint("TOPLEFT", 22, -158)
+paletteLabel:SetText("MODERN PALETTE")
+local paletteButton = Button(appearanceCard, "☰  Midnight Cyan", 250, 34)
+paletteButton:SetPoint("TOPLEFT", 22, -177)
+
+local fontLabel = Font(appearanceCard, 12, C.muted)
+fontLabel:SetPoint("TOPLEFT", 292, -158)
+fontLabel:SetText("ADDON FONT")
+local fontButton = Button(appearanceCard, "☰  Friz Quadrata", 250, 34)
+fontButton:SetPoint("TOPLEFT", 292, -177)
+
+local function SettingsSlider(label, x, y, width)
+    local labelText = Font(appearanceCard, 12, C.muted)
+    labelText:SetPoint("TOPLEFT", x, y)
+    labelText:SetText(label)
+    local valueText = Font(appearanceCard, 12, C.accent2, "RIGHT")
+    valueText:SetPoint("TOPRIGHT", -(858 - x - width), y)
+    valueText:SetWidth(62)
+    local slider = CreateFrame("Slider", nil, appearanceCard)
+    slider:SetPoint("TOPLEFT", x, y - 25)
+    slider:SetSize(width, 18)
+    slider:SetOrientation("HORIZONTAL")
+    slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
+    local track = slider:CreateTexture(nil, "BACKGROUND")
+    track:SetColorTexture(C.border[1], C.border[2], C.border[3], 0.8)
+    track:SetPoint("LEFT", 2, 0)
+    track:SetPoint("RIGHT", -2, 0)
+    track:SetHeight(4)
+    slider.track = track
+    return slider, valueText
+end
+
+local opacitySlider, opacityValue = SettingsSlider("MODERN OPACITY", 570, -70, 250)
+opacitySlider:SetMinMaxValues(0.55, 1)
+opacitySlider:SetValueStep(0.05)
+opacitySlider:SetObeyStepOnDrag(true)
+
+local scaleSlider, scaleValue = SettingsSlider("WINDOW SCALE", 570, -158, 250)
+scaleSlider:SetMinMaxValues(0.65, 1.10)
+scaleSlider:SetValueStep(0.05)
+scaleSlider:SetObeyStepOnDrag(true)
+
+local settingsHelp = Font(appearanceCard, 11, C.muted)
+settingsHelp:SetPoint("BOTTOMLEFT", 22, 20)
+settingsHelp:SetText("Tip: 80–85% scale is designed to fit comfortably on 1080p displays.")
+
+local paletteMenu, fontMenu
+local function ChoiceMenu(anchor, order, options, onChoose)
+    local menu = CreateFrame("Frame", nil, appearanceCard, "BackdropTemplate")
+    menu:SetSize(anchor:GetWidth(), (#order * 29) + 12)
+    menu:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 4)
+    menu:SetFrameLevel(appearanceCard:GetFrameLevel() + 20)
+    menu:SetClampedToScreen(true)
+    ApplyBackdrop(menu, C.panel, "panel")
+    menu.buttons = {}
+    for i, key in ipairs(order) do
+        local option = Button(menu, options[key].label, menu:GetWidth() - 12, 27)
+        option:SetPoint("TOPLEFT", 6, -6 - ((i - 1) * 29))
+        option:SetScript("OnClick", function()
+            onChoose(key)
+            menu:Hide()
+        end)
+        menu.buttons[#menu.buttons + 1] = option
+    end
+    menu:Hide()
+    return menu
+end
+
+paletteMenu = ChoiceMenu(paletteButton, PALETTE_ORDER, MODERN_PALETTES, function(key)
+    if not ns.db then return end
+    ns.db.settings.palette = key
+    if activeSkin == "modern" then ns:ApplySkinSafe("modern") else ns:RefreshSettings() end
+    ns:SetStatus(MODERN_PALETTES[key].label .. " palette selected.")
+end)
+fontMenu = ChoiceMenu(fontButton, FONT_ORDER, FONT_OPTIONS, function(key)
+    if not ns.db then return end
+    ns.db.settings.font = key
+    ApplySelectedFont()
+    ns:RefreshSettings()
+    ns:SetStatus(FONT_OPTIONS[key].label .. " font selected.")
+end)
+
+paletteButton:SetScript("OnClick", function()
+    fontMenu:Hide()
+    paletteMenu:SetShown(not paletteMenu:IsShown())
+end)
+fontButton:SetScript("OnClick", function()
+    paletteMenu:Hide()
+    fontMenu:SetShown(not fontMenu:IsShown())
+end)
+
+local settingsRefreshing = false
+opacitySlider:SetScript("OnValueChanged", function(_, value)
+    value = math.floor((value * 20) + 0.5) / 20
+    opacityValue:SetText(string.format("%d%%", value * 100))
+    if settingsRefreshing or not ns.db then return end
+    ns.db.settings.modernOpacity = value
+    if activeSkin == "modern" then ns:ApplySkinSafe("modern") end
+end)
+scaleSlider:SetScript("OnValueChanged", function(_, value)
+    value = math.floor((value * 20) + 0.5) / 20
+    scaleValue:SetText(string.format("%d%%", value * 100))
+    if settingsRefreshing or not ns.db then return end
+    ns.db.settings.scale = value
+    frame:SetScale(value)
 end)
 
 local aboutCard = CreateFrame("Frame", nil, settingsPage, "BackdropTemplate")
@@ -1289,17 +1477,17 @@ aboutTitle:SetPoint("TOPLEFT", 22, -20)
 aboutTitle:SetText("About Revath's Mailbox")
 local aboutDescription = Font(aboutCard, 12, C.muted)
 aboutDescription:SetPoint("TOPLEFT", aboutTitle, "BOTTOMLEFT", 0, -12)
-aboutDescription:SetWidth(800)
+aboutDescription:SetWidth(790)
 aboutDescription:SetWordWrap(true)
 aboutDescription:SetText("A mailbox replacement for managing mail, recipients, profession materials, and account characters from one interface.")
 local authorLabel = Font(aboutCard, 12, C.muted)
-authorLabel:SetPoint("TOPLEFT", aboutDescription, "BOTTOMLEFT", 0, -24)
+authorLabel:SetPoint("TOPLEFT", aboutDescription, "BOTTOMLEFT", 0, -18)
 authorLabel:SetText("AUTHOR")
 local authorValue = Font(aboutCard, 15, C.text)
 authorValue:SetPoint("TOPLEFT", authorLabel, "BOTTOMLEFT", 0, -7)
 authorValue:SetText("Revath#2331")
 local versionLabel = Font(aboutCard, 12, C.muted)
-versionLabel:SetPoint("TOPLEFT", authorValue, "BOTTOMLEFT", 0, -24)
+versionLabel:SetPoint("TOPLEFT", 420, -82)
 versionLabel:SetText("VERSION")
 local versionValue = Font(aboutCard, 15, C.accent2)
 versionValue:SetPoint("TOPLEFT", versionLabel, "BOTTOMLEFT", 0, -7)
@@ -1308,6 +1496,8 @@ versionValue:SetText(ns.version)
 function ns:RefreshSettings()
     if not settingsPage:IsShown() then return end
     local skin = self.db and self.db.settings.skin or activeSkin
+    local paletteKey = self.db and self.db.settings.palette or "midnight"
+    local fontKey = self.db and self.db.settings.font or "friz"
     for name, button in pairs({ modern = modernButton, classic = classicButton }) do
         if name == skin then
             button:SetBackdropColor(C.accent[1], C.accent[2], C.accent[3], 0.25)
@@ -1321,6 +1511,12 @@ function ns:RefreshSettings()
             if activeSkin == "classic" and button:GetNormalTexture() then button:GetNormalTexture():SetVertexColor(0.78, 0.20, 0.08, 1) end
         end
     end
+    paletteButton.label:SetText("☰  " .. (MODERN_PALETTES[paletteKey] or MODERN_PALETTES.midnight).label)
+    fontButton.label:SetText("☰  " .. (FONT_OPTIONS[fontKey] or FONT_OPTIONS.friz).label)
+    settingsRefreshing = true
+    opacitySlider:SetValue(math.max(0.55, math.min(1, tonumber(self.db and self.db.settings.modernOpacity) or 0.96)))
+    scaleSlider:SetValue(math.max(0.65, math.min(1.10, tonumber(self.db and self.db.settings.scale) or 1)))
+    settingsRefreshing = false
     versionValue:SetText(self.version)
 end
 
@@ -1336,7 +1532,7 @@ function ns:Show()
         end)
     end
     SetSendMailShowing(false)
-    frame:SetScale((self.db and self.db.settings.scale) or 1)
+    frame:SetScale(math.max(0.65, math.min(1.10, tonumber(self.db and self.db.settings.scale) or 1)))
     local requestedSkin = (self.db and self.db.settings.skin) or savedSkin
     local skinLoaded = self:ApplySkinSafe(requestedSkin)
     frame:Show()

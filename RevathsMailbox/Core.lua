@@ -2,7 +2,7 @@ local addonName, ns = ...
 local MAX_RECEIVE = ATTACHMENTS_MAX_RECEIVE or 16
 
 ns.name = addonName
-ns.version = "1.9.1"
+ns.version = "2.0.0"
 ns.colors = {
     bg = { 0.035, 0.047, 0.071, 0.98 },
     panel = { 0.065, 0.082, 0.115, 0.98 },
@@ -89,12 +89,15 @@ function ns:InitDatabase()
     self:ImportLegacyDatabase(AltMailDB)
     RevathsMailDB = nil
     AltMailDB = nil
-    if RevathsMailboxDB.settings.scale == nil then RevathsMailboxDB.settings.scale = 1 end
+    RevathsMailboxDB.settings.scale = math.max(0.65, math.min(1.10, tonumber(RevathsMailboxDB.settings.scale) or 1))
+    RevathsMailboxDB.settings.modernOpacity = math.max(0.55, math.min(1, tonumber(RevathsMailboxDB.settings.modernOpacity) or 0.96))
+    if type(RevathsMailboxDB.settings.palette) ~= "string" then RevathsMailboxDB.settings.palette = "midnight" end
+    if type(RevathsMailboxDB.settings.font) ~= "string" then RevathsMailboxDB.settings.font = "friz" end
     if RevathsMailboxDB.settings.showOfflineContacts == nil then RevathsMailboxDB.settings.showOfflineContacts = true end
     if RevathsMailboxDB.settings.skin ~= "classic" then RevathsMailboxDB.settings.skin = "modern" end
     self.db = RevathsMailboxDB
     self:MigrateCharacters()
-    RevathsMailboxDB.version = 3
+    RevathsMailboxDB.version = 4
     self:UpdateCharacter(true)
 end
 

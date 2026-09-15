@@ -27,7 +27,7 @@ Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, mod
 - **Quick Attach:** attach all available profession-material stacks, all unbound bind-on-equip items, or one localized material category such as leather, cloth, metal and stone, herbs, or enchanting supplies. At most 12 total stacks fit in one mail.
 - **Contacts:** use the source menu to filter guild members, character friends, or online Battle.net WoW characters; click a row to start a message. The currently logged-in character is hidden.
 - **Alts:** review every other character's last recorded money and mailbox summary; the active character is excluded.
-- **Settings:** switch between two independent layouts. Modern retains the compact rectangular design; Classic expands into an old-WoW-inspired window with a raised title plaque, portrait medallion, thick rounded ornamental borders, recessed panels, beveled red controls, and parchment mail pages. The selected skin is saved account-wide.
+- **Settings:** switch between Modern and Classic layouts, choose from five Modern color palettes, adjust Modern opacity, select one of four built-in WoW fonts, and scale the window from 65% to 110%. An 80–85% scale is recommended for 1080p screens. Classic keeps its old-WoW-inspired raised title plaque, portrait medallion, rounded ornamental borders, beveled red controls, and parchment pages. All choices are saved account-wide.
 - **Clear attachments:** remove every outgoing attachment while keeping the recipient, subject, message, and coin fields intact.
 - `/revathsmailbox` or `/rmail` reopens the window while a mailbox is active.
 - Click any character on the **Alts** page to address a new message to that character.
@@ -61,4 +61,4 @@ Revath's Mailbox does not use the network, Battle.net OAuth, or external service
 
 ## Releases
 
-Pushing a tag such as `v1.9.1` runs the GitHub Actions release workflow. It packages the addon with `RevathsMailbox` as the ZIP's top-level folder, uploads the build as a workflow artifact, and attaches the same ZIP to a generated GitHub Release.
+Pushing a tag such as `v2.0.0` runs the GitHub Actions release workflow. It packages the addon with `RevathsMailbox` as the ZIP's top-level folder, uploads the build as a workflow artifact, and attaches the same ZIP to a generated GitHub Release.
