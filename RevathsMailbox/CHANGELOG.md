@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0
+
+- Add a neutral Graphite Gray palette for the Modern skin.
+- Add a persistent Online only checkbox to Contacts.
+- Apply online filtering uniformly to guild members, character friends, and Battle.net characters.
+- Refresh the guild roster when the online filter changes so guild presence is current.
+
 ## 2.0.2
 
 - Discover every font registered through LibSharedMedia instead of limiting selection to bundled Blizzard fonts.

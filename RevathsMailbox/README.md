@@ -25,9 +25,9 @@ Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, mod
 - **Open all:** collect attachments and attached money from multiple messages with one click. Mail is processed sequentially, COD messages are skipped, and the operation can be stopped at any time.
 - **New Mail:** type a recipient or select one from Contacts, attach items by dragging them from bags, and optionally send money or request COD.
 - **Quick Attach:** attach all available profession-material stacks, all unbound bind-on-equip items, or one localized material category such as leather, cloth, metal and stone, herbs, or enchanting supplies. At most 12 total stacks fit in one mail.
-- **Contacts:** use the source menu to filter guild members, character friends, or online Battle.net WoW characters; click a row to start a message. The currently logged-in character is hidden.
+- **Contacts:** use the source menu to filter guild members, character friends, or Battle.net WoW characters. Check **Online only** to hide offline entries from every source, including guild members; click a row to start a message. The currently logged-in character is hidden.
 - **Alts:** review every other character's last recorded money and mailbox summary; the active character is excluded.
-- **Settings:** switch layouts, choose a Modern palette and opacity, resize the window, or select any built-in or LibSharedMedia font available on the client. The paged font menu labels Naowh's Avant Garde face as `Naowh / Avant Garde` when EllesmereUI is enabled. All selections are saved account-wide.
+- **Settings:** switch layouts, choose from six Modern palettes—including Graphite Gray—adjust opacity, resize the window, or select any built-in or LibSharedMedia font available on the client. The paged font menu labels Naowh's Avant Garde face as `Naowh / Avant Garde` when EllesmereUI is enabled. All selections are saved account-wide.
 - **Clear attachments:** remove every outgoing attachment while keeping the recipient, subject, message, and coin fields intact.
 - `/revathsmailbox` or `/rmail` reopens the window while a mailbox is active.
 - Click any character on the **Alts** page to address a new message to that character.

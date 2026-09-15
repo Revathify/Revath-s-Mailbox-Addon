@@ -25,9 +25,9 @@ Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, mod
 - **Open all:** collect attachments and attached money from multiple messages with one click. Mail is processed sequentially, COD messages are skipped, and the operation can be stopped at any time.
 - **New Mail:** type a recipient or select one from Contacts, attach items by dragging them from bags, and optionally send money or request COD.
 - **Quick Attach:** attach all available profession-material stacks, all unbound bind-on-equip items, or one localized material category such as leather, cloth, metal and stone, herbs, or enchanting supplies. At most 12 total stacks fit in one mail.
-- **Contacts:** use the source menu to filter guild members, character friends, or online Battle.net WoW characters; click a row to start a message. The currently logged-in character is hidden.
+- **Contacts:** use the source menu to filter guild members, character friends, or Battle.net WoW characters. Check **Online only** to hide offline entries from every source, including guild members; click a row to start a message. The currently logged-in character is hidden.
 - **Alts:** review every other character's last recorded money and mailbox summary; the active character is excluded.
-- **Settings:** switch between Modern and Classic layouts, choose from five Modern color palettes, adjust Modern opacity, and scale the window from 65% to 110%. The paged font menu includes the built-in WoW styles plus every font registered by LibSharedMedia on the client—including Naowh/Avant Garde when EllesmereUI is enabled. An 80–85% scale is recommended for 1080p screens. All choices are saved account-wide.
+- **Settings:** switch between Modern and Classic layouts, choose from six Modern color palettes—including Graphite Gray—adjust Modern opacity, and scale the window from 65% to 110%. The paged font menu includes the built-in WoW styles plus every font registered by LibSharedMedia on the client—including Naowh/Avant Garde when EllesmereUI is enabled. An 80–85% scale is recommended for 1080p screens. All choices are saved account-wide.
 - **Clear attachments:** remove every outgoing attachment while keeping the recipient, subject, message, and coin fields intact.
 - `/revathsmailbox` or `/rmail` reopens the window while a mailbox is active.
 - Click any character on the **Alts** page to address a new message to that character.
@@ -61,7 +61,7 @@ Revath's Mailbox does not use the network, Battle.net OAuth, or external service
 
 ## Releases
 
-Pushing a tag such as `v2.0.2` runs the GitHub Actions release workflow. It packages the addon with `RevathsMailbox` as the ZIP's top-level folder, uploads the build as a workflow artifact, and attaches the same ZIP to a generated GitHub Release.
+Pushing a tag such as `v2.1.0` runs the GitHub Actions release workflow. It packages the addon with `RevathsMailbox` as the ZIP's top-level folder, uploads the build as a workflow artifact, and attaches the same ZIP to a generated GitHub Release.
 
 ## Support
 

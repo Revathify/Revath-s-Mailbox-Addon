@@ -50,6 +50,11 @@ local MODERN_PALETTES = {
         panelAlt = { 0.060, 0.095, 0.165 }, input = { 0.018, 0.032, 0.062 }, button = { 0.052, 0.082, 0.145 },
         border = { 0.16, 0.28, 0.46 }, accent = { 0.25, 0.57, 0.96 }, accent2 = { 0.55, 0.78, 1.00 },
     },
+    graphite = {
+        label = "Graphite Gray", bg = { 0.050, 0.052, 0.058 }, panel = { 0.080, 0.083, 0.092 },
+        panelAlt = { 0.110, 0.114, 0.125 }, input = { 0.035, 0.037, 0.043 }, button = { 0.105, 0.109, 0.120 },
+        border = { 0.28, 0.29, 0.32 }, accent = { 0.62, 0.65, 0.70 }, accent2 = { 0.84, 0.86, 0.89 },
+    },
 }
 
 local FONT_OPTIONS = {
@@ -62,7 +67,7 @@ local FONT_OPTIONS = {
     skurri = { label = "Skurri", path = "Fonts\\SKURRI.TTF", flags = "" },
     skurriOutline = { label = "Skurri Outlined", path = "Fonts\\SKURRI.TTF", flags = "OUTLINE" },
 }
-local PALETTE_ORDER = { "midnight", "arcane", "emerald", "crimson", "royal" }
+local PALETTE_ORDER = { "midnight", "arcane", "emerald", "crimson", "royal", "graphite" }
 local FONT_ORDER = { "friz", "frizOutline", "arial", "arialOutline", "morpheus", "morpheusOutline", "skurri", "skurriOutline" }
 
 local function DiscoverSharedMediaFonts()
@@ -1235,6 +1240,22 @@ for i, option in ipairs(sourceOptions) do
     end)
 end
 sourceButton:SetScript("OnClick", function() sourceMenu:SetShown(not sourceMenu:IsShown()) end)
+
+local onlineOnly = CreateFrame("CheckButton", nil, contactsCard, "UICheckButtonTemplate")
+onlineOnly:SetPoint("TOPLEFT", 402, -13)
+onlineOnly:SetSize(26, 26)
+onlineOnly.text:SetText("Online only")
+onlineOnly.text:SetTextColor(unpack(C.text))
+onlineOnly:SetHitRectInsets(0, -78, 0, 0)
+styledText[onlineOnly.text] = "text"
+fontObjects[onlineOnly.text] = true
+onlineOnly:SetScript("OnClick", function(self)
+    if not ns.db then return end
+    ns.db.settings.showOfflineContacts = not self:GetChecked()
+    if IsInGuild() and C_GuildInfo and C_GuildInfo.GuildRoster then C_GuildInfo.GuildRoster() end
+    ns:RefreshContacts()
+end)
+
 local contactsScroll = CreateFrame("ScrollFrame", nil, contactsCard, "UIPanelScrollFrameTemplate")
 contactsScroll:SetPoint("TOPLEFT", 10, -52)
 contactsScroll:SetPoint("BOTTOMRIGHT", -30, 10)
@@ -1248,6 +1269,7 @@ search:SetScript("OnTextChanged", function() ns:RefreshContacts() end)
 
 function ns:RefreshContacts()
     if not contactsPage or not contactsPage:IsShown() then return end
+    onlineOnly:SetChecked(self.db and not self.db.settings.showOfflineContacts)
     local rowWidth = activeSkin == "classic" and 817 or 831
     contactsChild:SetWidth(activeSkin == "classic" and 822 or 836)
     local query = string.lower(strtrim(search:GetText() or ""))
