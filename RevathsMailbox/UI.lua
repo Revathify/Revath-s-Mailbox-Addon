@@ -53,13 +53,17 @@ local MODERN_PALETTES = {
 }
 
 local FONT_OPTIONS = {
-    friz = { label = "Friz Quadrata", path = STANDARD_TEXT_FONT },
-    arial = { label = "Arial Narrow", path = "Fonts\\ARIALN.TTF" },
-    morpheus = { label = "Morpheus", path = "Fonts\\MORPHEUS.TTF" },
-    skurri = { label = "Skurri", path = "Fonts\\SKURRI.TTF" },
+    friz = { label = "Friz Quadrata", path = STANDARD_TEXT_FONT, flags = "" },
+    frizOutline = { label = "Friz Outlined", path = STANDARD_TEXT_FONT, flags = "OUTLINE" },
+    arial = { label = "Arial Narrow", path = "Fonts\\ARIALN.TTF", flags = "" },
+    arialOutline = { label = "Arial Outlined", path = "Fonts\\ARIALN.TTF", flags = "OUTLINE" },
+    morpheus = { label = "Morpheus", path = "Fonts\\MORPHEUS.TTF", flags = "" },
+    morpheusOutline = { label = "Morpheus Outlined", path = "Fonts\\MORPHEUS.TTF", flags = "OUTLINE" },
+    skurri = { label = "Skurri", path = "Fonts\\SKURRI.TTF", flags = "" },
+    skurriOutline = { label = "Skurri Outlined", path = "Fonts\\SKURRI.TTF", flags = "OUTLINE" },
 }
 local PALETTE_ORDER = { "midnight", "arcane", "emerald", "crimson", "royal" }
-local FONT_ORDER = { "friz", "arial", "morpheus", "skurri" }
+local FONT_ORDER = { "friz", "frizOutline", "arial", "arialOutline", "morpheus", "morpheusOutline", "skurri", "skurriOutline" }
 
 local styledFrames, styledText, classicInkText, fontObjects = {}, {}, {}, {}
 local savedSkin = type(RevathsMailboxDB) == "table" and type(RevathsMailboxDB.settings) == "table" and RevathsMailboxDB.settings.skin or "modern"
@@ -225,7 +229,9 @@ local function ApplySelectedFont()
     for object in pairs(fontObjects) do
         if object and object.GetFont and object.SetFont then
             local _, size, flags = object:GetFont()
-            local ok, loaded = pcall(object.SetFont, object, option.path, size or 12, flags or "")
+            local selectedFlags = option.flags
+            if selectedFlags == nil then selectedFlags = flags or "" end
+            local ok, loaded = pcall(object.SetFont, object, option.path, size or 12, selectedFlags)
             if not ok or loaded == false then object:SetFont(STANDARD_TEXT_FONT, size or 12, flags or "") end
         end
     end
@@ -1408,17 +1414,21 @@ settingsHelp:SetPoint("BOTTOMLEFT", 22, 20)
 settingsHelp:SetText("Tip: 80–85% scale is designed to fit comfortably on 1080p displays.")
 
 local paletteMenu, fontMenu
-local function ChoiceMenu(anchor, order, options, onChoose)
+local function ChoiceMenu(anchor, order, options, onChoose, columns)
+    columns = columns or 1
+    local rows = math.ceil(#order / columns)
     local menu = CreateFrame("Frame", nil, appearanceCard, "BackdropTemplate")
-    menu:SetSize(anchor:GetWidth(), (#order * 29) + 12)
+    menu:SetSize((anchor:GetWidth() * columns) + ((columns - 1) * 6), (rows * 29) + 12)
     menu:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 4)
     menu:SetFrameLevel(appearanceCard:GetFrameLevel() + 20)
     menu:SetClampedToScreen(true)
     ApplyBackdrop(menu, C.panel, "panel")
     menu.buttons = {}
     for i, key in ipairs(order) do
-        local option = Button(menu, options[key].label, menu:GetWidth() - 12, 27)
-        option:SetPoint("TOPLEFT", 6, -6 - ((i - 1) * 29))
+        local column = math.floor((i - 1) / rows)
+        local row = (i - 1) % rows
+        local option = Button(menu, options[key].label, anchor:GetWidth() - 6, 27)
+        option:SetPoint("TOPLEFT", 6 + (column * anchor:GetWidth()), -6 - (row * 29))
         option:SetScript("OnClick", function()
             onChoose(key)
             menu:Hide()
@@ -1441,7 +1451,7 @@ fontMenu = ChoiceMenu(fontButton, FONT_ORDER, FONT_OPTIONS, function(key)
     ApplySelectedFont()
     ns:RefreshSettings()
     ns:SetStatus(FONT_OPTIONS[key].label .. " font selected.")
-end)
+end, 2)
 
 paletteButton:SetScript("OnClick", function()
     fontMenu:Hide()
@@ -1460,12 +1470,33 @@ opacitySlider:SetScript("OnValueChanged", function(_, value)
     ns.db.settings.modernOpacity = value
     if activeSkin == "modern" then ns:ApplySkinSafe("modern") end
 end)
+local pendingScale, scaleDragging, scaleCommitToken
+local function CommitWindowScale()
+    if not pendingScale or not ns.db then return end
+    ns.db.settings.scale = pendingScale
+    frame:SetScale(pendingScale)
+    pendingScale = nil
+end
+scaleSlider:SetScript("OnMouseDown", function() scaleDragging = true end)
+scaleSlider:SetScript("OnMouseUp", function()
+    scaleDragging = false
+    CommitWindowScale()
+end)
 scaleSlider:SetScript("OnValueChanged", function(_, value)
     value = math.floor((value * 20) + 0.5) / 20
     scaleValue:SetText(string.format("%d%%", value * 100))
     if settingsRefreshing or not ns.db then return end
-    ns.db.settings.scale = value
-    frame:SetScale(value)
+    pendingScale = value
+    if scaleDragging then return end
+    scaleCommitToken = (scaleCommitToken or 0) + 1
+    local token = scaleCommitToken
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0.2, function()
+            if token == scaleCommitToken and not scaleDragging then CommitWindowScale() end
+        end)
+    else
+        CommitWindowScale()
+    end
 end)
 
 local aboutCard = CreateFrame("Frame", nil, settingsPage, "BackdropTemplate")

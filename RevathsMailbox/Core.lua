@@ -2,7 +2,7 @@ local addonName, ns = ...
 local MAX_RECEIVE = ATTACHMENTS_MAX_RECEIVE or 16
 
 ns.name = addonName
-ns.version = "2.0.0"
+ns.version = "2.0.1"
 ns.colors = {
     bg = { 0.035, 0.047, 0.071, 0.98 },
     panel = { 0.065, 0.082, 0.115, 0.98 },

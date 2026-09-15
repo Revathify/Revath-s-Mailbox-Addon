@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+- Expand the font menu from four choices to eight clearly visible WoW font styles.
+- Arrange font choices in a compact two-column hamburger menu.
+- Stop resizing the window continuously while the scale slider is being dragged; apply the selected scale once after release instead.
+
 ## 2.0.0
 
 - Add five selectable Modern palettes: Midnight Cyan, Arcane Violet, Emerald Grove, Crimson Ember, and Royal Blue.
