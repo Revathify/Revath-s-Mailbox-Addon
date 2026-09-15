@@ -1,0 +1,11 @@
+## Interface: 120100
+## Title: Revath's Mailbox
+## Notes: A customizable mailbox replacement with alt tracking and fast recipient tools for friends and guild members.
+## Author: Revath#2331
+## Version: 1.9.0
+## SavedVariables: RevathsMailboxDB, RevathsMailDB, AltMailDB
+## Category: User Interface
+## IconTexture: Interface\AddOns\RevathsMailbox\Media\Icon
+
+Core.lua
+UI.lua

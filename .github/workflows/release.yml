@@ -1,0 +1,65 @@
+name: Package and release addon
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v1.9.0"
+        required: true
+        default: "v1.9.0"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build release ZIP
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Package addon
+        id: package
+        shell: pwsh
+        run: |
+          $staging = Join-Path $env:RUNNER_TEMP "revaths-mailbox-release"
+          $addonTarget = Join-Path $staging "RevathsMailbox"
+          $zipName = "RevathsMailbox-$env:RELEASE_TAG.zip"
+          $zipPath = Join-Path $env:RUNNER_TEMP $zipName
+
+          New-Item -ItemType Directory -Path $staging -Force | Out-Null
+          Copy-Item -LiteralPath "RevathsMailbox" -Destination $addonTarget -Recurse
+          Compress-Archive -LiteralPath $addonTarget -DestinationPath $zipPath -CompressionLevel Optimal
+
+          "zip_name=$zipName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "zip_path=$zipPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.zip_name }}
+          path: ${{ steps.package.outputs.zip_path }}
+          if-no-files-found: error
+
+      - name: Publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$ZIP_PATH" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$RELEASE_TAG" "$ZIP_PATH" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Revath's Mailbox $RELEASE_TAG" \
+              --generate-notes
+          fi

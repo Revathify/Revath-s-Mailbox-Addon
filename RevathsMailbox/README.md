@@ -58,7 +58,3 @@ Revath's Mailbox does not use the network, Battle.net OAuth, or external service
 - `Media/Icon.tga` is the branded, transparent addon-list icon.
 - `Media/IconSmall.tga` is the text-free transparent icon used inside the mailbox window for better readability at small sizes.
 - `Media/RevathsMailbox-Logo.png` is the full-resolution transparent logo with the addon name.
-
-## Releases
-
-Pushing a tag such as `v1.9.0` runs the GitHub Actions release workflow. It packages the addon with `RevathsMailbox` as the ZIP's top-level folder, uploads the build as a workflow artifact, and attaches the same ZIP to a generated GitHub Release.
