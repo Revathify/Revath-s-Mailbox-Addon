@@ -273,6 +273,12 @@ function ns:DisableBlizzardMailbox()
     end
 end
 
+local function IsMailboxInteraction(interactionType)
+    local interactionTypes = Enum and Enum.PlayerInteractionType
+    if not interactionTypes then return false end
+    return interactionType == interactionTypes.MailInfo
+end
+
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("PLAYER_LOGIN")
 events:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -282,6 +288,7 @@ events:RegisterEvent("BAG_UPDATE_DELAYED")
 events:RegisterEvent("PLAYER_LOGOUT")
 events:RegisterEvent("MAIL_SHOW")
 events:RegisterEvent("MAIL_CLOSED")
+events:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_HIDE")
 events:RegisterEvent("MAIL_INBOX_UPDATE")
 events:RegisterEvent("MAIL_SUCCESS")
 events:RegisterEvent("MAIL_SEND_SUCCESS")
@@ -330,6 +337,12 @@ events:SetScript("OnEvent", function(_, event, arg1)
         ns.mailOpen = false
         if ns.StopOpenAll then ns:StopOpenAll() end
         if ns.Hide then ns:Hide(true) end
+    elseif event == "PLAYER_INTERACTION_MANAGER_FRAME_HIDE" and IsMailboxInteraction(arg1) then
+        if ns.mailOpen then
+            ns.mailOpen = false
+            if ns.StopOpenAll then ns:StopOpenAll() end
+            if ns.Hide then ns:Hide(true) end
+        end
     elseif event == "MAIL_INBOX_UPDATE" then
         ns:ScanInbox()
         if ns.RefreshInbox then ns:RefreshInbox() end
