@@ -25,8 +25,8 @@ Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, mod
 - **Open all:** collect attachments and attached money from multiple messages with one click. Mail is processed sequentially, COD messages are skipped, and the operation can be stopped at any time.
 - **New Mail:** type a recipient or select one from Contacts, attach items by dragging them from bags, and optionally send money or request COD.
 - **Quick Attach:** attach all available profession-material stacks, all unbound bind-on-equip items, or one localized material category such as leather, cloth, metal and stone, herbs, or enchanting supplies. At most 12 total stacks fit in one mail.
-- **Contacts:** use the source menu to filter guild members, character friends, or online Battle.net WoW characters; click a row to start a message.
-- **Alts:** review each character's last recorded money and mailbox summary.
+- **Contacts:** use the source menu to filter guild members, character friends, or online Battle.net WoW characters; click a row to start a message. The currently logged-in character is hidden.
+- **Alts:** review every other character's last recorded money and mailbox summary; the active character is excluded.
 - **Settings:** switch between two independent layouts. Modern retains the compact rectangular design; Classic expands into an old-WoW-inspired window with a raised title plaque, portrait medallion, thick rounded ornamental borders, recessed panels, beveled red controls, and parchment mail pages. The selected skin is saved account-wide.
 - **Clear attachments:** remove every outgoing attachment while keeping the recipient, subject, message, and coin fields intact.
 - `/revathsmailbox` or `/rmail` reopens the window while a mailbox is active.

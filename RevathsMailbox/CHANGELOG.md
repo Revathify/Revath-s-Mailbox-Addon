@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.1
+
+- Hide the currently logged-in character from the Alts tab.
+- Exclude the current character from Contacts even when it is discovered through guild, character-friend, or Battle.net sources.
+
 ## 1.9.0
 
 - Add an Inbox Open all button for collecting attachments and attached money from multiple messages.

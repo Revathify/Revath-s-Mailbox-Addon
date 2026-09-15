@@ -2,7 +2,7 @@ local addonName, ns = ...
 local MAX_RECEIVE = ATTACHMENTS_MAX_RECEIVE or 16
 
 ns.name = addonName
-ns.version = "1.9.0"
+ns.version = "1.9.1"
 ns.colors = {
     bg = { 0.035, 0.047, 0.071, 0.98 },
     panel = { 0.065, 0.082, 0.115, 0.98 },
@@ -167,9 +167,23 @@ end
 
 function ns:GetContacts()
     local contacts, seen = {}, {}
+    local playerName, playerRealm = UnitFullName and UnitFullName("player")
+    playerName = playerName or UnitName("player")
+    playerRealm = playerRealm or RealmKey()
+
+    local function IsCurrentCharacter(name)
+        if not name or not playerName then return false end
+        local shortName, realm = string.match(name, "^([^-]+)%-(.+)$")
+        shortName = shortName or name
+        if string.lower(shortName) ~= string.lower(playerName) then return false end
+        if not realm or realm == "" then return true end
+        return NormalizeRealm(realm) == NormalizeRealm(playerRealm)
+    end
+
     local function Add(name, kind, online, detail, classFile)
         if not name or name == "" then return end
         local key = Ambiguate and Ambiguate(name, "none") or name
+        if IsCurrentCharacter(key) then return end
         local lowered = string.lower(key)
         local existing = seen[lowered]
         if existing then

@@ -1195,9 +1195,8 @@ function ns:RefreshAlts()
     if not altsPage or not altsPage:IsShown() then return end
     local rowWidth = activeSkin == "classic" and 817 or 831
     altChild:SetWidth(activeSkin == "classic" and 822 or 836)
-    local characters, totalMoney = {}, 0
-    for _, character in pairs(self.db.characters) do
-        characters[#characters + 1] = character
+    local characters, totalMoney = self:GetAlts(), 0
+    for _, character in ipairs(characters) do
         totalMoney = totalMoney + (character.money or 0)
     end
     table.sort(characters, function(a, b) return (a.lastSeen or 0) > (b.lastSeen or 0) end)
