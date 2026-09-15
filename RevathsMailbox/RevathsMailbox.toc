@@ -2,7 +2,8 @@
 ## Title: Revath's Mailbox
 ## Notes: A customizable mailbox replacement with alt tracking and fast recipient tools for friends and guild members.
 ## Author: Revath#2331
-## Version: 2.0.1
+## Version: 2.0.2
+## OptionalDeps: EllesmereUI, SharedMedia, SharedMediaAdditionalFonts, LibSharedMedia-3.0
 ## SavedVariables: RevathsMailboxDB, RevathsMailDB, AltMailDB
 ## Category: User Interface
 ## IconTexture: Interface\AddOns\RevathsMailbox\Media\Icon

@@ -65,6 +65,39 @@ local FONT_OPTIONS = {
 local PALETTE_ORDER = { "midnight", "arcane", "emerald", "crimson", "royal" }
 local FONT_ORDER = { "friz", "frizOutline", "arial", "arialOutline", "morpheus", "morpheusOutline", "skurri", "skurriOutline" }
 
+local function DiscoverSharedMediaFonts()
+    if not LibStub then return end
+    local media = LibStub("LibSharedMedia-3.0", true)
+    if not media or not media.HashTable then return end
+    local registered = media:HashTable("font")
+    if type(registered) ~= "table" then return end
+    local knownPaths = {}
+    for _, font in pairs(FONT_OPTIONS) do
+        if font.flags == "" and type(font.path) == "string" then knownPaths[string.lower(font.path)] = true end
+    end
+    local names = {}
+    for name, path in pairs(registered) do
+        if type(name) == "string" and type(path) == "string" and path ~= "" and not knownPaths[string.lower(path)] then
+            names[#names + 1] = name
+        end
+    end
+    table.sort(names, function(a, b) return string.lower(a) < string.lower(b) end)
+    for _, name in ipairs(names) do
+        local key = "shared:" .. name
+        local loweredPath = string.lower(registered[name])
+        if not FONT_OPTIONS[key] and not knownPaths[loweredPath] then
+            local label = name
+            local loweredName = string.lower(name)
+            if loweredName == "avant garde" or string.find(loweredPath, "naowh", 1, true) then
+                label = "Naowh / " .. name
+            end
+            FONT_OPTIONS[key] = { label = label, path = registered[name], flags = "", shared = true }
+            FONT_ORDER[#FONT_ORDER + 1] = key
+            knownPaths[loweredPath] = true
+        end
+    end
+end
+
 local styledFrames, styledText, classicInkText, fontObjects = {}, {}, {}, {}
 local savedSkin = type(RevathsMailboxDB) == "table" and type(RevathsMailboxDB.settings) == "table" and RevathsMailboxDB.settings.skin or "modern"
 if not THEMES[savedSkin] then savedSkin = "modern" end
@@ -1445,13 +1478,85 @@ paletteMenu = ChoiceMenu(paletteButton, PALETTE_ORDER, MODERN_PALETTES, function
     if activeSkin == "modern" then ns:ApplySkinSafe("modern") else ns:RefreshSettings() end
     ns:SetStatus(MODERN_PALETTES[key].label .. " palette selected.")
 end)
-fontMenu = ChoiceMenu(fontButton, FONT_ORDER, FONT_OPTIONS, function(key)
-    if not ns.db then return end
-    ns.db.settings.font = key
-    ApplySelectedFont()
-    ns:RefreshSettings()
-    ns:SetStatus(FONT_OPTIONS[key].label .. " font selected.")
-end, 2)
+
+local function PagedFontMenu(anchor)
+    local columns, rows, perPage = 2, 5, 10
+    local menu = CreateFrame("Frame", nil, appearanceCard, "BackdropTemplate")
+    menu:SetSize((anchor:GetWidth() * columns) + 6, (rows * 29) + 42)
+    menu:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 4)
+    menu:SetFrameLevel(appearanceCard:GetFrameLevel() + 20)
+    menu:SetClampedToScreen(true)
+    ApplyBackdrop(menu, C.panel, "panel")
+    menu.page, menu.buttons = 1, {}
+
+    for slot = 1, perPage do
+        local column = math.floor((slot - 1) / rows)
+        local row = (slot - 1) % rows
+        local option = Button(menu, "", anchor:GetWidth() - 6, 27)
+        option:SetPoint("TOPLEFT", 6 + (column * anchor:GetWidth()), -6 - (row * 29))
+        option:SetScript("OnClick", function(self)
+            local selected = self.fontKey and FONT_OPTIONS[self.fontKey]
+            if not selected or not ns.db then return end
+            ns.db.settings.font = self.fontKey
+            ApplySelectedFont()
+            ns:RefreshSettings()
+            ns:SetStatus(selected.label .. " font selected.")
+            menu:Hide()
+        end)
+        menu.buttons[slot] = option
+    end
+
+    menu.previous = Button(menu, "<", 32, 25)
+    menu.previous:SetPoint("BOTTOMLEFT", 6, 6)
+    menu.next = Button(menu, ">", 32, 25)
+    menu.next:SetPoint("BOTTOMRIGHT", -6, 6)
+    menu.pageText = Font(menu, 11, C.muted, "CENTER")
+    menu.pageText:SetPoint("BOTTOM", 0, 12)
+    menu.pageText:SetWidth(180)
+
+    function menu:Refresh()
+        DiscoverSharedMediaFonts()
+        local pages = math.max(1, math.ceil(#FONT_ORDER / perPage))
+        self.page = math.max(1, math.min(self.page, pages))
+        local offset = (self.page - 1) * perPage
+        for slot, option in ipairs(self.buttons) do
+            local key = FONT_ORDER[offset + slot]
+            local font = key and FONT_OPTIONS[key]
+            option.fontKey = key
+            option:SetShown(font ~= nil)
+            if font then
+                option.label:SetText(font.label)
+                local _, size = option.label:GetFont()
+                local ok, loaded = pcall(option.label.SetFont, option.label, font.path, size or 11, font.flags or "")
+                if not ok or loaded == false then option.label:SetFont(STANDARD_TEXT_FONT, size or 11, "") end
+            end
+        end
+        self.previous:SetEnabled(self.page > 1)
+        self.next:SetEnabled(self.page < pages)
+        self.previous:SetAlpha(self.page > 1 and 1 or 0.35)
+        self.next:SetAlpha(self.page < pages and 1 or 0.35)
+        self.pageText:SetText(string.format("Fonts %d / %d  ·  %d available", self.page, pages, #FONT_ORDER))
+    end
+
+    menu.previous:SetScript("OnClick", function()
+        if menu.page > 1 then menu.page = menu.page - 1; menu:Refresh() end
+    end)
+    menu.next:SetScript("OnClick", function()
+        local pages = math.max(1, math.ceil(#FONT_ORDER / perPage))
+        if menu.page < pages then menu.page = menu.page + 1; menu:Refresh() end
+    end)
+    menu:EnableMouseWheel(true)
+    menu:SetScript("OnMouseWheel", function(_, delta)
+        local pages = math.max(1, math.ceil(#FONT_ORDER / perPage))
+        menu.page = math.max(1, math.min(pages, menu.page - delta))
+        menu:Refresh()
+    end)
+    menu:Refresh()
+    menu:Hide()
+    return menu
+end
+
+fontMenu = PagedFontMenu(fontButton)
 
 paletteButton:SetScript("OnClick", function()
     fontMenu:Hide()
@@ -1459,6 +1564,7 @@ paletteButton:SetScript("OnClick", function()
 end)
 fontButton:SetScript("OnClick", function()
     paletteMenu:Hide()
+    fontMenu:Refresh()
     fontMenu:SetShown(not fontMenu:IsShown())
 end)
 
@@ -1544,6 +1650,7 @@ function ns:RefreshSettings()
     end
     paletteButton.label:SetText("☰  " .. (MODERN_PALETTES[paletteKey] or MODERN_PALETTES.midnight).label)
     fontButton.label:SetText("☰  " .. (FONT_OPTIONS[fontKey] or FONT_OPTIONS.friz).label)
+    if fontMenu then fontMenu:Refresh() end
     settingsRefreshing = true
     opacitySlider:SetValue(math.max(0.55, math.min(1, tonumber(self.db and self.db.settings.modernOpacity) or 0.96)))
     scaleSlider:SetValue(math.max(0.65, math.min(1.10, tonumber(self.db and self.db.settings.scale) or 1)))

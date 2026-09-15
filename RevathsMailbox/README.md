@@ -5,7 +5,7 @@ Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, mod
 ## Target
 
 - World of Warcraft Retail / Midnight 12.1 (`Interface: 120100`)
-- No external libraries
+- No external libraries required; LibSharedMedia is detected when another enabled addon provides it
 - Saved data stays locally in `WTF/Account/.../SavedVariables/RevathsMailbox.lua`
 
 ## Install
@@ -27,7 +27,7 @@ Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, mod
 - **Quick Attach:** attach all available profession-material stacks, all unbound bind-on-equip items, or one localized material category such as leather, cloth, metal and stone, herbs, or enchanting supplies. At most 12 total stacks fit in one mail.
 - **Contacts:** use the source menu to filter guild members, character friends, or online Battle.net WoW characters; click a row to start a message. The currently logged-in character is hidden.
 - **Alts:** review every other character's last recorded money and mailbox summary; the active character is excluded.
-- **Settings:** switch between two independent layouts. Modern retains the compact rectangular design; Classic expands into an old-WoW-inspired window with a raised title plaque, portrait medallion, thick rounded ornamental borders, recessed panels, beveled red controls, and parchment mail pages. The selected skin is saved account-wide.
+- **Settings:** switch layouts, choose a Modern palette and opacity, resize the window, or select any built-in or LibSharedMedia font available on the client. The paged font menu labels Naowh's Avant Garde face as `Naowh / Avant Garde` when EllesmereUI is enabled. All selections are saved account-wide.
 - **Clear attachments:** remove every outgoing attachment while keeping the recipient, subject, message, and coin fields intact.
 - `/revathsmailbox` or `/rmail` reopens the window while a mailbox is active.
 - Click any character on the **Alts** page to address a new message to that character.

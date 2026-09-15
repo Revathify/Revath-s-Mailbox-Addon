@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.2
+
+- Discover every font registered through LibSharedMedia instead of limiting selection to bundled Blizzard fonts.
+- Show Naowh's Avant Garde face explicitly as `Naowh / Avant Garde` when EllesmereUI is enabled.
+- Add a paged two-column font picker with previous, next, and mouse-wheel navigation for large font libraries.
+- Declare common SharedMedia providers as optional dependencies so their fonts are ready before the mailbox UI loads.
+
 ## 2.0.1
 
 - Expand the font menu from four choices to eight clearly visible WoW font styles.
