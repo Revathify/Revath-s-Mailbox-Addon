@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.5
+
+- Add an optional Tooltip Helper submodule with its own AddOns checkbox.
+- Show account-wide item totals directly in item tooltips.
+- Include character bags, banks, reagent bags, and Warband Bank contents.
+- Exclude Soulbound items while including Warbound items.
+- Hold Shift to see the per-character and Warband Bank breakdown.
+
 ## 2.1.0
 
 - Add a neutral Graphite Gray palette for the Modern skin.
