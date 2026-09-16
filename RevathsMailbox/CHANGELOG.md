@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.6
+
+- Add recipient suggestions while typing a mail address, with mouse and keyboard selection.
+- Add a GitHub Actions build workflow for pull requests, main-branch pushes, and manual builds.
+
 ## 2.1.5
 
 - Add an optional Tooltip Helper submodule with its own AddOns checkbox.

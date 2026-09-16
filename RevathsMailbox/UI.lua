@@ -867,6 +867,111 @@ toBox:SetSize(574, 35)
 toBox:SetPoint("TOPLEFT", toLabel, "BOTTOMLEFT", 0, -6)
 compose.to = toBox
 
+local recipientSuggestions = CreateFrame("Frame", nil, composeCard, "BackdropTemplate")
+recipientSuggestions:SetPoint("TOPLEFT", toBox, "BOTTOMLEFT", 0, -3)
+recipientSuggestions:SetWidth(574)
+recipientSuggestions:SetFrameLevel(composeCard:GetFrameLevel() + 20)
+ApplyBackdrop(recipientSuggestions, C.panelAlt)
+recipientSuggestions:Hide()
+recipientSuggestions.rows = {}
+recipientSuggestions.selected = 0
+
+local function HideRecipientSuggestions()
+    recipientSuggestions:Hide()
+    recipientSuggestions.selected = 0
+end
+
+local function SelectRecipientSuggestion(name)
+    toBox:SetText(name)
+    toBox:SetCursorPosition(string.len(name))
+    HideRecipientSuggestions()
+    toBox:SetFocus()
+end
+
+local function UpdateRecipientSuggestionSelection()
+    for index, row in ipairs(recipientSuggestions.rows) do
+        if index <= recipientSuggestions.matchCount then
+            if index == recipientSuggestions.selected then
+                row:SetBackdropColor(C.accent[1], C.accent[2], C.accent[3], 0.22)
+            else
+                row:SetBackdropColor(unpack(C.panelAlt))
+            end
+        end
+    end
+end
+
+local function ShowRecipientSuggestions()
+    local query = string.lower(strtrim(toBox:GetText() or ""))
+    if query == "" then HideRecipientSuggestions(); return end
+
+    local matches, seen = {}, {}
+    local function AddMatch(name, source)
+        if not name or name == "" then return end
+        local lowered = string.lower(name)
+        if seen[lowered] or not string.find(lowered, query, 1, true) then return end
+        seen[lowered] = true
+        matches[#matches + 1] = { name = name, source = source, startsWith = string.sub(lowered, 1, string.len(query)) == query }
+    end
+
+    for _, contact in ipairs(ns:GetContacts()) do AddMatch(contact.name, contact.kind) end
+    for _, character in ipairs(ns:GetAlts()) do AddMatch(ns:GetRecipientName(character), "Character") end
+    table.sort(matches, function(a, b)
+        if a.startsWith ~= b.startsWith then return a.startsWith end
+        return string.lower(a.name) < string.lower(b.name)
+    end)
+
+    local shown = math.min(#matches, 8)
+    if shown == 0 then HideRecipientSuggestions(); return end
+    recipientSuggestions.matchCount = shown
+    recipientSuggestions.selected = 1
+    recipientSuggestions:SetHeight(8 + shown * 30)
+    for index = 1, shown do
+        local match = matches[index]
+        local row = recipientSuggestions.rows[index]
+        if not row then
+            row = CreateFrame("Button", nil, recipientSuggestions, "BackdropTemplate")
+            row:SetHeight(30)
+            row:SetPoint("TOPLEFT", 8, -4 - ((index - 1) * 30))
+            row:SetPoint("TOPRIGHT", -8, -4 - ((index - 1) * 30))
+            ApplyBackdrop(row, C.panelAlt, "button")
+            row.label = Font(row, 12, C.text)
+            row.label:SetPoint("LEFT", 10, 0)
+            row.source = Font(row, 10, C.muted, "RIGHT")
+            row.source:SetPoint("RIGHT", -10, 0)
+            recipientSuggestions.rows[index] = row
+        end
+        row.label:SetText(match.name)
+        row.source:SetText(match.source or "")
+        row:SetScript("OnMouseDown", function() SelectRecipientSuggestion(match.name) end)
+        row:Show()
+    end
+    for index = shown + 1, #recipientSuggestions.rows do recipientSuggestions.rows[index]:Hide() end
+    recipientSuggestions:Show()
+    UpdateRecipientSuggestionSelection()
+end
+
+toBox:SetScript("OnTextChanged", ShowRecipientSuggestions)
+toBox:SetScript("OnEditFocusLost", function()
+    if not recipientSuggestions:IsMouseOver() then HideRecipientSuggestions() end
+end)
+toBox:SetScript("OnKeyDown", function(self, key)
+    if not recipientSuggestions:IsShown() then return end
+    if key == "DOWN" or key == "UP" then
+        local direction = key == "DOWN" and 1 or -1
+        self:SetPropagateKeyboardInput(false)
+        self:SetCursorPosition(string.len(self:GetText() or ""))
+        recipientSuggestions.selected = math.max(1, math.min(recipientSuggestions.matchCount, recipientSuggestions.selected + direction))
+        UpdateRecipientSuggestionSelection()
+    elseif key == "ENTER" then
+        self:SetPropagateKeyboardInput(false)
+        local row = recipientSuggestions.rows[recipientSuggestions.selected]
+        if row and row.label then SelectRecipientSuggestion(row.label:GetText()) end
+    elseif key == "ESCAPE" then
+        self:SetPropagateKeyboardInput(false)
+        HideRecipientSuggestions()
+    end
+end)
+
 local subjectLabel = Label("SUBJECT", toBox, "BOTTOMLEFT", 0, -14)
 local subjectBox = EditBox(composeCard)
 subjectBox:SetSize(574, 35)

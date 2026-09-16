@@ -61,7 +61,8 @@ Revath's Mailbox does not use the network, Battle.net OAuth, or external service
 
 ## Releases
 
-Pushing a tag such as `v2.1.0` runs the GitHub Actions release workflow. It packages the addon with `RevathsMailbox` as the ZIP's top-level folder, uploads the build as a workflow artifact, and attaches the same ZIP to a generated GitHub Release.
+Every push to `main`, pull request, or manual build creates a versioned ZIP in the GitHub Actions workflow artifacts. Pushing a tag such as `v2.1.6` runs the GitHub Actions release workflow.
+It packages the addon with `RevathsMailbox` as the ZIP's top-level folder, uploads the build as a workflow artifact, and attaches the same ZIP to a generated GitHub Release.
 
 ## Support
 
