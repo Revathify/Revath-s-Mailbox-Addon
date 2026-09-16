@@ -1,0 +1,11 @@
+## Interface: 120100
+## Title: Revath's Mailbox [|cffeda55fTooltip Helper|r]
+## Notes: Account-wide item totals for Revath's Mailbox.
+## Author: Revathify
+## Version: 1.0.0
+## LoadOnDemand: 1
+## Dependencies: RevathsMailbox
+## SavedVariables: RevathsMailboxTooltipHelperDB
+## Category: User Interface
+
+RevathsMailboxTooltipHelper.lua

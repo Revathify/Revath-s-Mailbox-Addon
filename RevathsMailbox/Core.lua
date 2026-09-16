@@ -307,6 +307,11 @@ events:SetScript("OnEvent", function(_, event, arg1)
     elseif event == "PLAYER_LOGIN" then
         ns:InitDatabase()
         if C_AddOns and C_AddOns.LoadAddOn then
+            C_AddOns.LoadAddOn("RevathsMailboxTooltipHelper")
+        elseif LoadAddOn then
+            LoadAddOn("RevathsMailboxTooltipHelper")
+        end
+        if C_AddOns and C_AddOns.LoadAddOn then
             C_AddOns.LoadAddOn("Blizzard_UIMailPanel")
         elseif LoadAddOn then
             LoadAddOn("Blizzard_UIMailPanel")

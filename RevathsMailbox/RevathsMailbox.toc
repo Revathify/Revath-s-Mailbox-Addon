@@ -4,10 +4,9 @@
 ## Author: Revath#2331
 ## Version: 2.1.1
 ## OptionalDeps: EllesmereUI, SharedMedia, SharedMediaAdditionalFonts, LibSharedMedia-3.0
-## SavedVariables: RevathsMailboxDB, RevathsMailDB, AltMailDB, RevathsMailboxTooltipHelperDB
+## SavedVariables: RevathsMailboxDB, RevathsMailDB, AltMailDB
 ## Category: User Interface
 ## IconTexture: Interface\AddOns\RevathsMailbox\Media\Icon
 
 Core.lua
 UI.lua
-TooltipHelper.lua

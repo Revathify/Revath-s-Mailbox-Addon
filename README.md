@@ -1,6 +1,6 @@
 # Revath's Mailbox
 
-Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, modern interface. It combines inbox management, a spacious New Mail editor, quick bag-item attachment, and account-wide alt tracking in one window. Its searchable recipient directory can be filtered between guild members, character friends, and online Battle.net WoW characters. It also includes an optional tooltip helper submodule for account-wide item totals.
+Revath's Mailbox replaces World of Warcraft's standard mailbox with a clean, modern interface. It combines inbox management, a spacious New Mail editor, quick bag-item attachment, and account-wide alt tracking in one window. Its searchable recipient directory can be filtered between guild members, character friends, and online Battle.net WoW characters. It also includes a load-on-demand tooltip helper submodule for account-wide item totals. The module appears nested under Revath's Mailbox in WoW's AddOns list and has its own enable checkbox.
 
 ## Target
 
