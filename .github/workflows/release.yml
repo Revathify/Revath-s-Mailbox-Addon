@@ -31,12 +31,14 @@ jobs:
         run: |
           $staging = Join-Path $env:RUNNER_TEMP "revaths-mailbox-release"
           $addonTarget = Join-Path $staging "RevathsMailbox"
+          $tooltipTarget = Join-Path $staging "RevathsMailboxTooltipHelper"
           $zipName = "RevathsMailbox-$env:RELEASE_TAG.zip"
           $zipPath = Join-Path $env:RUNNER_TEMP $zipName
 
           New-Item -ItemType Directory -Path $staging -Force | Out-Null
           Copy-Item -LiteralPath "RevathsMailbox" -Destination $addonTarget -Recurse
-          Compress-Archive -LiteralPath $addonTarget -DestinationPath $zipPath -CompressionLevel Optimal
+          Copy-Item -LiteralPath "RevathsMailboxTooltipHelper" -Destination $tooltipTarget -Recurse
+          Compress-Archive -LiteralPath $addonTarget,$tooltipTarget -DestinationPath $zipPath -CompressionLevel Optimal
 
           "zip_name=$zipName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "zip_path=$zipPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append

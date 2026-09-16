@@ -1,0 +1,9 @@
+## Interface: 120100
+## Title: Revath's Mailbox Tooltip Helper
+## Notes: Shows item totals across characters and the Warband Bank.
+## Author: Revathify
+## Version: 1.0.0
+## SavedVariables: RevathsMailboxTooltipHelperDB
+## Category: User Interface
+
+RevathsMailboxTooltipHelper.lua
