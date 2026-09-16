@@ -2,7 +2,7 @@
 ## Title: Revath's Mailbox [|cffeda55fTooltip Helper|r]
 ## Notes: Account-wide item totals for Revath's Mailbox. Enable or disable in Mailbox Settings.
 ## Author: Revathify
-## Version: 1.0.0
+## Version: 1.0.1
 ## LoadOnDemand: 1
 ## Dependencies: RevathsMailbox
 ## SavedVariables: RevathsMailboxTooltipHelperDB

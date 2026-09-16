@@ -112,23 +112,30 @@ local function rescan()
     end
 end
 
+local function initialize()
+    local parentSettings = type(RevathsMailboxDB) == "table" and RevathsMailboxDB.settings
+    local defaultEnabled = not parentSettings or parentSettings.tooltipHelperEnabled ~= false
+    database = RevathsMailboxTooltipHelperDB or { version = 1, enabled = defaultEnabled, characters = {} }
+    database.enabled = parentSettings and parentSettings.tooltipHelperEnabled ~= false or database.enabled ~= false
+    database.characters = database.characters or {}
+    RevathsMailboxTooltipHelperDB = database
+    currentCharacterKey = getCharacterKey()
+    rescan()
+end
+
 local eventFrame = CreateFrame("Frame")
+eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 eventFrame:RegisterEvent("BANKFRAME_OPENED")
 eventFrame:RegisterEvent("BANKFRAME_CLOSED")
 eventFrame:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
 eventFrame:RegisterEvent("PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED")
-eventFrame:SetScript("OnEvent", function(_, event)
-    if event == "PLAYER_LOGIN" then
-        local parentSettings = type(RevathsMailboxDB) == "table" and RevathsMailboxDB.settings
-        local defaultEnabled = not parentSettings or parentSettings.tooltipHelperEnabled ~= false
-        database = RevathsMailboxTooltipHelperDB or { version = 1, enabled = defaultEnabled, characters = {} }
-        database.enabled = parentSettings and parentSettings.tooltipHelperEnabled ~= false or database.enabled ~= false
-        database.characters = database.characters or {}
-        RevathsMailboxTooltipHelperDB = database
-        currentCharacterKey = getCharacterKey()
-        rescan()
+eventFrame:SetScript("OnEvent", function(_, event, arg1)
+    if event == "ADDON_LOADED" and arg1 == "RevathsMailboxTooltipHelper" then
+        initialize()
+    elseif event == "PLAYER_LOGIN" and not database then
+        initialize()
     elseif event == "BANKFRAME_OPENED" then
         isBankOpen = true; rescan()
     elseif event == "BANKFRAME_CLOSED" then
