@@ -101,6 +101,10 @@ local function addTooltipCount(tooltip, data)
     tooltip:Show()
 end
 
+function RevathsMailboxTooltipHelper_SetEnabled(enabled)
+    database.enabled = enabled == true
+end
+
 local function rescan()
     if database and currentCharacterKey then
         scanCharacter()
@@ -117,8 +121,10 @@ eventFrame:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
 eventFrame:RegisterEvent("PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED")
 eventFrame:SetScript("OnEvent", function(_, event)
     if event == "PLAYER_LOGIN" then
-        database = RevathsMailboxTooltipHelperDB or { version = 1, enabled = true, characters = {} }
-        database.enabled = database.enabled ~= false
+        local parentSettings = type(RevathsMailboxDB) == "table" and RevathsMailboxDB.settings
+        local defaultEnabled = not parentSettings or parentSettings.tooltipHelperEnabled ~= false
+        database = RevathsMailboxTooltipHelperDB or { version = 1, enabled = defaultEnabled, characters = {} }
+        database.enabled = parentSettings and parentSettings.tooltipHelperEnabled ~= false or database.enabled ~= false
         database.characters = database.characters or {}
         RevathsMailboxTooltipHelperDB = database
         currentCharacterKey = getCharacterKey()

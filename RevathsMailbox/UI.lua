@@ -1388,7 +1388,7 @@ frame.pages.Settings = settingsPage
 local appearanceCard = CreateFrame("Frame", nil, settingsPage, "BackdropTemplate")
 appearanceCard:SetPoint("TOPLEFT")
 appearanceCard:SetPoint("TOPRIGHT")
-appearanceCard:SetHeight(270)
+appearanceCard:SetHeight(320)
 ApplyBackdrop(appearanceCard)
 
 local settingsTitle = Font(appearanceCard, 18, C.text)
@@ -1463,6 +1463,25 @@ local scaleSlider, scaleValue = SettingsSlider("WINDOW SCALE", 570, -158, 250)
 scaleSlider:SetMinMaxValues(0.65, 1.10)
 scaleSlider:SetValueStep(0.05)
 scaleSlider:SetObeyStepOnDrag(true)
+
+local tooltipHelper = CreateFrame("CheckButton", nil, appearanceCard, "UICheckButtonTemplate")
+tooltipHelper:SetPoint("TOPLEFT", 570, -218)
+tooltipHelper:SetSize(26, 26)
+local tooltipHelperLabel = Font(appearanceCard, 12, C.text)
+tooltipHelperLabel:SetPoint("LEFT", tooltipHelper, "RIGHT", 8, 0)
+tooltipHelperLabel:SetText("Tooltip Helper")
+local tooltipHelperHint = Font(appearanceCard, 11, C.muted)
+tooltipHelperHint:SetPoint("TOPLEFT", tooltipHelperLabel, "BOTTOMLEFT", 0, -2)
+tooltipHelperHint:SetText("Show account-wide item totals in tooltips.")
+tooltipHelper:SetScript("OnClick", function(self)
+    local enabled = self:GetChecked()
+    if not ns.db then return end
+    ns.db.settings.tooltipHelperEnabled = enabled
+    if RevathsMailboxTooltipHelper_SetEnabled then
+        RevathsMailboxTooltipHelper_SetEnabled(enabled)
+    end
+    ns:SetStatus(enabled and "Tooltip Helper enabled." or "Tooltip Helper disabled.")
+end)
 
 local settingsHelp = Font(appearanceCard, 11, C.muted)
 settingsHelp:SetPoint("BOTTOMLEFT", 22, 20)
@@ -1676,6 +1695,7 @@ function ns:RefreshSettings()
     settingsRefreshing = true
     opacitySlider:SetValue(math.max(0.55, math.min(1, tonumber(self.db and self.db.settings.modernOpacity) or 0.96)))
     scaleSlider:SetValue(math.max(0.65, math.min(1.10, tonumber(self.db and self.db.settings.scale) or 1)))
+    tooltipHelper:SetChecked(self.db and self.db.settings.tooltipHelperEnabled ~= false)
     settingsRefreshing = false
     versionValue:SetText(self.version)
 end

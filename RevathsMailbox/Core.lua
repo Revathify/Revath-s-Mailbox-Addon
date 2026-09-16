@@ -94,6 +94,7 @@ function ns:InitDatabase()
     if type(RevathsMailboxDB.settings.palette) ~= "string" then RevathsMailboxDB.settings.palette = "midnight" end
     if type(RevathsMailboxDB.settings.font) ~= "string" then RevathsMailboxDB.settings.font = "friz" end
     if RevathsMailboxDB.settings.showOfflineContacts == nil then RevathsMailboxDB.settings.showOfflineContacts = true end
+    if RevathsMailboxDB.settings.tooltipHelperEnabled == nil then RevathsMailboxDB.settings.tooltipHelperEnabled = true end
     if RevathsMailboxDB.settings.skin ~= "classic" then RevathsMailboxDB.settings.skin = "modern" end
     self.db = RevathsMailboxDB
     self:MigrateCharacters()
@@ -306,9 +307,10 @@ events:SetScript("OnEvent", function(_, event, arg1)
         if arg1 == "Blizzard_UIMailPanel" then ns:DisableBlizzardMailbox() end
     elseif event == "PLAYER_LOGIN" then
         ns:InitDatabase()
-        if C_AddOns and C_AddOns.LoadAddOn then
+        local tooltipHelperEnabled = not C_AddOns or not C_AddOns.IsAddOnEnabled or C_AddOns.IsAddOnEnabled("RevathsMailboxTooltipHelper")
+        if tooltipHelperEnabled and C_AddOns and C_AddOns.LoadAddOn then
             C_AddOns.LoadAddOn("RevathsMailboxTooltipHelper")
-        elseif LoadAddOn then
+        elseif tooltipHelperEnabled and LoadAddOn then
             LoadAddOn("RevathsMailboxTooltipHelper")
         end
         if C_AddOns and C_AddOns.LoadAddOn then
