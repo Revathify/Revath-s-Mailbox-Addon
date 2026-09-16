@@ -110,7 +110,7 @@ local function getTotals(itemID)
 end
 
 local function addTooltipCount(tooltip, data)
-    if tooltip.rmbthAddedItemID then
+    if not database or not database.enabled or tooltip.rmbthAddedItemID then
         return
     end
 
@@ -119,7 +119,7 @@ local function addTooltipCount(tooltip, data)
         local _, itemLink = tooltip:GetItem()
         itemID = getItemID(itemLink)
     end
-    if not itemID or not database or not database.characters then
+    if not itemID or not database.characters then
         return
     end
 
@@ -170,7 +170,8 @@ eventFrame:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
 eventFrame:RegisterEvent("PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED")
 eventFrame:SetScript("OnEvent", function(_, event)
     if event == "PLAYER_LOGIN" then
-        database = RevathsMailboxTooltipHelperDB or { version = 1, characters = {} }
+        database = RevathsMailboxTooltipHelperDB or { version = 1, enabled = true, characters = {} }
+        database.enabled = database.enabled ~= false
         database.characters = database.characters or {}
         RevathsMailboxTooltipHelperDB = database
         currentCharacterKey = getCharacterKey()
@@ -202,13 +203,21 @@ end)
 SLASH_REVATHSMAILBOXTOOLTIPHELPER1 = "/rmbth"
 SlashCmdList.REVATHSMAILBOXTOOLTIPHELPER = function(message)
     local command = string.lower(message or "")
-    if command == "reset" then
+    if command == "on" or command == "enable" then
+        database.enabled = true
+        print("Revath's Mailbox: tooltip helper enabled.")
+    elseif command == "off" or command == "disable" then
+        database.enabled = false
+        print("Revath's Mailbox: tooltip helper disabled.")
+    elseif command == "reset" then
         database.characters = {}
         database.warbandBank = {}
         rescan()
-        print("Revath's Mailbox Tooltip Helper: saved totals cleared; current character rescanned.")
-    else
+        print("Revath's Mailbox: tooltip totals cleared; current character rescanned.")
+    elseif command == "rescan" or command == "" then
         rescan()
-        print("Revath's Mailbox Tooltip Helper: character inventory rescanned.")
+        print("Revath's Mailbox: tooltip inventory rescanned.")
+    else
+        print("Revath's Mailbox tooltip commands: /rmbth on, /rmbth off, /rmbth rescan, /rmbth reset")
     end
 end
